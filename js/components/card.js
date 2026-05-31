@@ -13,6 +13,7 @@ export function createGridCard(data, { onRemove, onClick, onPin }) {
     const card = document.createElement('div');
     card.className = `price-card ${pos ? 'positive' : 'negative'}${isPinned ? ' pinned' : ''}`;
     card.dataset.symbol = data.symbol;
+    card.draggable = true;
 
     card.innerHTML = `
         <div class="card-actions">

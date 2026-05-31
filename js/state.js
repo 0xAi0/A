@@ -94,6 +94,16 @@ class AppState {
         this.saveSymbols();
     }
 
+    reorderSymbol(fromSymbol, toSymbol) {
+        const syms = this.symbolSets[this.activeExchange];
+        const fromIdx = syms.indexOf(fromSymbol);
+        const toIdx = syms.indexOf(toSymbol);
+        if (fromIdx === -1 || toIdx === -1 || fromIdx === toIdx) return;
+        syms.splice(fromIdx, 1);
+        syms.splice(toIdx, 0, fromSymbol);
+        this.saveSymbols();
+    }
+
     saveSymbols() {
         localStorage.setItem('symbolSets', JSON.stringify(this.symbolSets));
     }

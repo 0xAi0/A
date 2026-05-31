@@ -99,6 +99,69 @@ async function refreshAvailablePairs(exchange = state.activeExchange) {
     }
 }
 
+// ── Drag & Drop for Grid Cards ──
+let draggedSymbol = null;
+
+function initDragAndDrop() {
+    const cards = gridEl.querySelectorAll('.price-card[draggable="true"]');
+    cards.forEach(card => {
+        card.addEventListener('dragstart', handleDragStart);
+        card.addEventListener('dragend', handleDragEnd);
+        card.addEventListener('dragover', handleDragOver);
+        card.addEventListener('dragenter', handleDragEnter);
+        card.addEventListener('dragleave', handleDragLeave);
+        card.addEventListener('drop', handleDrop);
+    });
+}
+
+function handleDragStart(e) {
+    draggedSymbol = this.dataset.symbol;
+    this.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', draggedSymbol);
+    // Slight delay so the dragging class applies after the ghost snapshot
+    requestAnimationFrame(() => this.style.opacity = '0.4');
+}
+
+function handleDragEnd(e) {
+    this.classList.remove('dragging');
+    this.style.opacity = '';
+    draggedSymbol = null;
+    // Clean up all drag-over highlights
+    gridEl.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+}
+
+function handleDragEnter(e) {
+    e.preventDefault();
+    const card = e.target.closest('.price-card');
+    if (card && card.dataset.symbol !== draggedSymbol) {
+        card.classList.add('drag-over');
+    }
+}
+
+function handleDragLeave(e) {
+    const card = e.target.closest('.price-card');
+    if (card && !card.contains(e.relatedTarget)) {
+        card.classList.remove('drag-over');
+    }
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    const targetCard = e.target.closest('.price-card');
+    if (!targetCard || !draggedSymbol) return;
+    const targetSymbol = targetCard.dataset.symbol;
+    if (targetSymbol === draggedSymbol) return;
+    targetCard.classList.remove('drag-over');
+    state.reorderSymbol(draggedSymbol, targetSymbol);
+    updateDashboard();
+}
+
 // ── Dashboard Update ──
 async function updateDashboard() {
     const data = await fetchMarketData();
@@ -138,6 +201,11 @@ async function updateDashboard() {
             listBody.appendChild(createListRow(coinData, callbacks));
         }
     });
+
+    // Enable drag-and-drop for grid view
+    if (state.isGridView) {
+        initDragAndDrop();
+    }
 
     updateTimestamp();
     updateTabTitle(data);

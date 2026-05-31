@@ -447,6 +447,25 @@ main { position: relative; z-index: 1; padding: 32px 0 60px; }
     box-shadow: 0 0 20px rgba(34,211,238,0.08), inset 0 0 20px rgba(34,211,238,0.03);
 }
 
+/* Drag and Drop */
+.price-card[draggable="true"] {
+    cursor: grab;
+}
+.price-card[draggable="true"]:active {
+    cursor: grabbing;
+}
+.price-card.dragging {
+    opacity: 0.4;
+    transform: scale(0.95);
+    box-shadow: 0 0 0 2px rgba(34,211,238,0.3);
+}
+.price-card.drag-over {
+    border-color: rgba(34,211,238,0.5) !important;
+    box-shadow: 0 0 24px rgba(34,211,238,0.15), inset 0 0 12px rgba(34,211,238,0.05);
+    transform: translateY(-2px) scale(1.02);
+    transition: all 0.15s ease;
+}
+
 /* Error card */
 .error-card {
     background: rgba(248,113,113,0.04);
